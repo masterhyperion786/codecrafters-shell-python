@@ -3,43 +3,62 @@ import shutil
 import subprocess
 import os
 
+def cmd_exit(args):
+    sys.exit(int(args[0]) if args else 0)
+
+def cmd_echo(args):
+    print(" ".join(args))
+
+def cmd_type(args):
+    if args[0] in ["exit", "echo", "type", "pwd", "cd"]:
+        print(f"{args[0]} is a shell builtin")
+    elif shutil.which(args[0]):
+        print(f"{args[0]} is {shutil.which(args[0])}")
+    else:
+        print(f"{args[0]}: not found")
+
+def cmd_pwd(args):
+    print(os.getcwd())
+
+def cmd_cd(args):
+    try:
+        if args and args[0] == "~":
+            os.chdir(os.path.expanduser("~"))
+        elif args:
+            os.chdir(args[0])
+        else:
+            print("cd: missing operand")
+    except FileNotFoundError:
+        print(f"cd: {args[0]}: No such file or directory")
+
+BUILTIN_COMMANDS = {
+    "exit": cmd_exit,
+    "echo": cmd_echo,
+    "type": cmd_type,
+    "pwd": cmd_pwd,
+    "cd": cmd_cd
+}
 
 def main():
     # TODO: Uncomment the code below to pass the first stage
-
-    builtin_commands = ["exit", "echo", "type", "pwd", "cd"]
-
     while True:
-        sys.stdout.write("$ ")
-        command = input()
-        input_commands = command.strip().split()
+        try:
+            command_input = input("$ ")
+            if not command_input.strip():
+                continue
+            command_parts = command_input.split()
+            command_name = command_parts[0]
+            command_args = command_parts[1:]
 
-        if input_commands[0] == "exit":
+            if command_name in BUILTIN_COMMANDS:
+                BUILTIN_COMMANDS[command_name](command_args)
+            elif execute_program([command_name] + command_args) is None:
+                print(f"{command_name}: command not found")
+        except EOFError:
+            print("\nExiting shell.")
             break
-        elif input_commands[0] == "echo":
-            print(" ".join(input_commands[1:]))
-        elif input_commands[0] == "type":
-            if input_commands[1] in builtin_commands:
-                print(f"{input_commands[1]} is a shell builtin")
-            elif shutil.which(input_commands[1]):
-                print(f"{input_commands[1]} is {shutil.which(input_commands[1])}")
-            else:
-                print(f"{input_commands[1]}: not found")
-        elif input_commands[0] == "pwd":
-            print(os.getcwd())
-        elif input_commands[0] == "cd":
-            try:
-                if input_commands[1] == "~":
-                    os.chdir(os.path.expanduser("~"))
-                else:
-                    os.chdir(input_commands[1])
-            except IndexError:
-                print("cd: missing operand")
-            except FileNotFoundError:
-                print(f"cd: {input_commands[1]}: No such file or directory")
-        else:
-            if execute_program(input_commands) is None:
-                print(f"{input_commands[0]}: command not found")
+        except KeyboardInterrupt:
+            print("\nUse 'exit' to quit the shell.")
 
 def execute_program(command):
     if shutil.which(command[0]):
