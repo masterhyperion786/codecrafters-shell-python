@@ -5,7 +5,8 @@ import os
 def main():
     # TODO: Uncomment the code below to pass the first stage
 
-    acceptable_paths = os.environ['PATH'].split(os.pathsep)
+    acceptable_paths = os.environ.get("PATH", "").split(os.pathsep)
+    
     while True:
         sys.stdout.write("$ ")
         command = input()
@@ -17,15 +18,20 @@ def main():
             if command[5:] in ["exit", "echo", "type"]:
                 print(f"{command[5:]} is a shell builtin")
             else:
-                match = next((s for s in acceptable_paths if command[5:] in s), None)
-                if match and os.access(match, os.X_OK):
+                match = find_executable(command[5:], acceptable_paths)
+                if match:
                     print(f"{command[5:]} is {match}")
                 else:
                     print(f"{command[5:]}: not found")
         else:
             print(f"{command}: command not found")
     
-
+def find_executable(command, paths):
+    for path in paths:
+        executable_path = os.path.join(path, command)
+        if os.path.isfile(executable_path) and os.access(executable_path, os.X_OK):
+            return executable_path
+    return None
 
 if __name__ == "__main__":
     main()
