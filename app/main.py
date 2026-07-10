@@ -29,7 +29,10 @@ def main():
             print(os.getcwd())
         elif input_commands[0] == "cd":
             try:
-                os.chdir(input_commands[1])
+                if input_commands[1] == "~":
+                    os.chdir(os.path.expanduser("~"))
+                else:
+                    os.chdir(input_commands[1])
             except IndexError:
                 print("cd: missing operand")
             except FileNotFoundError:
