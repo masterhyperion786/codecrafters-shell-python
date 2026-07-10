@@ -1,6 +1,6 @@
-import os
 import sys
 import shutil
+import subprocess
 
 
 def main():
@@ -25,14 +25,19 @@ def main():
             else:
                 print(f"{input_commands[1]}: not found")
         else:
-            print(f"{input_commands[0]}: command not found")
-    
-def find_executable(command, paths):
-    for path in paths:
-        executable_path = os.path.join(path, command)
-        if os.path.isfile(executable_path) and os.access(executable_path, os.X_OK):
-            return executable_path
-    return None
+            if execute_program(input_commands) is None:
+                print(f"{input_commands[0]}: command not found")
+
+def execute_program(command):
+    if shutil.which(command[0]):
+        try:
+            result = subprocess.run(command, check=True)
+            return result.returncode
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing {command[0]}: {e}")
+            return e.returncode
+
+
 
 if __name__ == "__main__":
     main()
