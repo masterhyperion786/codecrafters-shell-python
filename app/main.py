@@ -7,7 +7,7 @@ import os
 def main():
     # TODO: Uncomment the code below to pass the first stage
 
-    builtin_commands = ["exit", "echo", "type", "pwd"]
+    builtin_commands = ["exit", "echo", "type", "pwd", "cd"]
 
     while True:
         sys.stdout.write("$ ")
@@ -27,6 +27,13 @@ def main():
                 print(f"{input_commands[1]}: not found")
         elif input_commands[0] == "pwd":
             print(os.getcwd())
+        elif input_commands[0] == "cd":
+            try:
+                os.chdir(input_commands[1])
+            except IndexError:
+                print("cd: missing operand")
+            except FileNotFoundError:
+                print(f"cd: {input_commands[1]}: No such file or directory")
         else:
             if execute_program(input_commands) is None:
                 print(f"{input_commands[0]}: command not found")
