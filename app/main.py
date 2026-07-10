@@ -1,12 +1,13 @@
 import sys
 import shutil
 import subprocess
+import os
 
 
 def main():
     # TODO: Uncomment the code below to pass the first stage
 
-    builtin_commands = ["exit", "echo", "type"]
+    builtin_commands = ["exit", "echo", "type", "pwd"]
 
     while True:
         sys.stdout.write("$ ")
@@ -24,6 +25,8 @@ def main():
                 print(f"{input_commands[1]} is {shutil.which(input_commands[1])}")
             else:
                 print(f"{input_commands[1]}: not found")
+        elif input_commands[0] == "pwd":
+            print(os.getcwd())
         else:
             if execute_program(input_commands) is None:
                 print(f"{input_commands[0]}: command not found")
