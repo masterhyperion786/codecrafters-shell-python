@@ -63,6 +63,7 @@ BUILTIN_COMMANDS = {
 OPERATORS = {
     '>': "redirect_output_to_file",
     '1>': "redirect_output_to_file",
+    '2>': "redirect_output_to_file"
 }
 
 def main():
