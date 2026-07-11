@@ -1,5 +1,6 @@
 import sys
 import shutil
+import shlex
 import subprocess
 import os
 
@@ -46,7 +47,8 @@ def main():
             command_input = input("$ ")
             if not command_input.strip():
                 continue
-            command_parts = command_input.split()
+            shlexed_input = shlex.split(command_input)
+            command_parts = shlexed_input
             command_name = command_parts[0]
             command_args = command_parts[1:]
 
