@@ -32,12 +32,36 @@ def cmd_cd(args):
     except FileNotFoundError:
         print(f"cd: {args[0]}: No such file or directory")
 
+def redirect_output_to_file(command, filename):
+    try:
+        with open(filename, 'w') as f:
+            result = subprocess.run(command, stdout=f, stderr=subprocess.PIPE)
+            if result.returncode != 0:
+                print(f"Error executing {command}: {result.stderr.decode()}")
+    except Exception as e:
+        print(f"Error redirecting output: {e}")
+
+def execute_program(command):
+    if shutil.which(command[0]):
+        try:
+            result = subprocess.run(command, check=True)
+            return result.returncode
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing {command[0]}: {e}")
+            return e.returncode
+    
+
 BUILTIN_COMMANDS = {
     "exit": cmd_exit,
     "echo": cmd_echo,
     "type": cmd_type,
     "pwd": cmd_pwd,
     "cd": cmd_cd
+}
+
+OPERATORS = {
+    '>': "redirect_output_to_file",
+    '1>': "redirect_output_to_file",
 }
 
 def main():
@@ -49,10 +73,13 @@ def main():
                 continue
             shlexed_input = shlex.split(command_input)
             command_parts = shlexed_input
+
             command_name = command_parts[0]
             command_args = command_parts[1:]
 
-            if command_name in BUILTIN_COMMANDS:
+            if len(command_parts) > 1 and any([i in command_parts for i in OPERATORS.keys()]):
+                redirect_output_to_file([command_name] + command_args[:-2], command_args[-1])
+            elif command_name in BUILTIN_COMMANDS:
                 BUILTIN_COMMANDS[command_name](command_args)
             elif execute_program([command_name] + command_args) is None:
                 print(f"{command_name}: command not found")
@@ -61,17 +88,6 @@ def main():
             break
         except KeyboardInterrupt:
             print("\nUse 'exit' to quit the shell.")
-
-def execute_program(command):
-    if shutil.which(command[0]):
-        try:
-            result = subprocess.run(command, check=True)
-            return result.returncode
-        except subprocess.CalledProcessError as e:
-            print(f"Error executing {command[0]}: {e}")
-            return e.returncode
-
-
 
 if __name__ == "__main__":
     main()
