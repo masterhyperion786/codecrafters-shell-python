@@ -37,7 +37,7 @@ def redirect_output_to_file(command, filename):
         with open(filename, 'w') as f:
             result = subprocess.run(command, stdout=f, stderr=subprocess.PIPE)
             if result.returncode != 0:
-                print(f"{result.stderr.decode()}")
+                print(f"{result.stderr.decode().strip()}")
                 return result.returncode
     except Exception as e:
         print(f"Error redirecting output: {e}")
