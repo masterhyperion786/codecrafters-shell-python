@@ -89,6 +89,18 @@ def executables_in_path():
                     executables.add(file)
     return executables
 
+def directorys_in_current():
+    path = os.getcwd()
+    directories = []
+    try:
+        for entry in os.listdir(path):
+            full_path = os.path.join(path, entry)
+            if os.path.isdir(full_path):
+                directories.append(entry + '/')
+    except PermissionError:
+        print(f"Permission denied: cannot access {path}")
+    return directories
+
 def files_in_current_and_nested_directory():
     files = []
     for root, dirs, filenames in os.walk('.'):
@@ -101,7 +113,7 @@ def files_in_current_and_nested_directory():
     return files
         
 def completion(text, state):
-    commands = list(BUILTIN_COMMANDS.keys()) + list(executables_in_path()) + files_in_current_and_nested_directory()
+    commands = list(BUILTIN_COMMANDS.keys()) + list(executables_in_path()) + files_in_current_and_nested_directory() + directorys_in_current()
     matches = [cmd + ' ' for cmd in commands if cmd.startswith(text)]
     return matches[state] if state < len(matches) else None
 
@@ -126,6 +138,7 @@ def main():
     # TODO: Uncomment the code below to pass the first stage
     while True:
         try:
+            print(directorys_in_current())
             command_input = input("$ ")
             if not command_input.strip():
                 continue
