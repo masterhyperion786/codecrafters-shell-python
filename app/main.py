@@ -42,6 +42,14 @@ def redirect_output_to_file(command, filename):
     except Exception as e:
         print(f"Error redirecting output: {e}")
 
+def redirect_error_to_file(command, filename):
+    try:
+        with open(filename, 'w') as f:
+            result = subprocess.run(command, stderr=f)
+        return result.returncode
+    except Exception as e:
+        print(f"Error redirecting error: {e}")
+
 def execute_program(command):
     if shutil.which(command[0]):
         try:
@@ -61,9 +69,9 @@ BUILTIN_COMMANDS = {
 }
 
 OPERATORS = {
-    '>': "redirect_output_to_file",
-    '1>': "redirect_output_to_file",
-    '2>': "redirect_output_to_file"
+    '>': redirect_output_to_file,
+    '1>': redirect_output_to_file,
+    '2>': redirect_error_to_file
 }
 
 def main():
@@ -79,8 +87,8 @@ def main():
             command_name = command_parts[0]
             command_args = command_parts[1:]
 
-            if len(command_parts) > 1 and any([i in command_parts for i in OPERATORS.keys()]):
-                redirect_output_to_file([command_name] + command_args[:-2], command_args[-1])
+            if len(command_parts) > 1 and command_parts[-2] in OPERATORS:
+                OPERATORS[command_parts[-2]]([command_name] + command_args[:-2], command_args[-1])
             elif command_name in BUILTIN_COMMANDS:
                 BUILTIN_COMMANDS[command_name](command_args)
             elif execute_program([command_name] + command_args) is None:
