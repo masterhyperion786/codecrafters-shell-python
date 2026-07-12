@@ -122,7 +122,6 @@ def main():
     # TODO: Uncomment the code below to pass the first stage
     while True:
         try:
-            print(files_in_current_and_nested_directory())
             command_input = input("$ ")
             if not command_input.strip():
                 continue
