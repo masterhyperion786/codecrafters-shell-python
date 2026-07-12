@@ -52,6 +52,14 @@ def append_output_to_file(command, filename):
     except Exception as e:
         print(f"Error appending output: {e}")
 
+def append_error_to_file(command, filename):
+    try:
+        with open(filename, 'a') as f:
+            result = subprocess.run(command, stderr=f)
+        return result.returncode
+    except Exception as e:
+        print(f"Error appending error: {e}")
+
 def redirect_error_to_file(command, filename):
     try:
         with open(filename, 'w') as f:
@@ -83,7 +91,8 @@ OPERATORS = {
     '1>': redirect_output_to_file,
     '>>': append_output_to_file,
     '1>>': append_output_to_file,
-    '2>': redirect_error_to_file
+    '2>': redirect_error_to_file,
+    '2>>': append_error_to_file
 }
 
 def main():
