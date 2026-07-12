@@ -93,7 +93,11 @@ def files_in_current_and_nested_directory():
     files = []
     for root, dirs, filenames in os.walk('.'):
         for filename in filenames:
-            files.append(os.path.join(root, filename))
+            # omit leading './' from the sys.path for better readability
+            if root == '.':
+                files.append(filename)
+            else:
+                files.append(os.path.join(root, filename)[len('./'):])
     return files
         
 def completion(text, state):
