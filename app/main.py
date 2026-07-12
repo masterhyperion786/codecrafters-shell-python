@@ -42,6 +42,16 @@ def redirect_output_to_file(command, filename):
     except Exception as e:
         print(f"Error redirecting output: {e}")
 
+def append_output_to_file(command, filename):
+    try:
+        with open(filename, 'a') as f:
+            result = subprocess.run(command, stdout=f, stderr=subprocess.PIPE)
+            if result.returncode != 0:
+                print(f"{result.stderr.decode().strip()}")
+                return result.returncode
+    except Exception as e:
+        print(f"Error appending output: {e}")
+
 def redirect_error_to_file(command, filename):
     try:
         with open(filename, 'w') as f:
@@ -71,6 +81,8 @@ BUILTIN_COMMANDS = {
 OPERATORS = {
     '>': redirect_output_to_file,
     '1>': redirect_output_to_file,
+    '>>': append_output_to_file,
+    '1>>': append_output_to_file,
     '2>': redirect_error_to_file
 }
 
