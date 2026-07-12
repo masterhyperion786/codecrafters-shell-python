@@ -77,9 +77,20 @@ def execute_program(command):
         except subprocess.CalledProcessError as e:
             print(f"Error executing {command[0]}: {e}")
             return e.returncode
+
+def executables_in_path():
+    paths = os.environ.get("PATH", "").split(os.pathsep)
+    executables = set()
+    for path in paths:
+        if os.path.isdir(path):
+            for file in os.listdir(path):
+                full_path = os.path.join(path, file)
+                if os.access(full_path, os.X_OK) and not os.path.isdir(full_path):
+                    executables.add(file)
+    return executables
         
 def completion(text, state):
-    commands = list(BUILTIN_COMMANDS.keys()) + [shutil.which(cmd) for cmd in os.listdir('/bin') if shutil.which(cmd)]
+    commands = list(BUILTIN_COMMANDS.keys()) + list(executables_in_path())
     matches = [cmd + ' ' for cmd in commands if cmd.startswith(text)]
     return matches[state] if state < len(matches) else None
 
