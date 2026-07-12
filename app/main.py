@@ -79,7 +79,7 @@ def execute_program(command):
             return e.returncode
         
 def completion(text, state):
-    commands = list(BUILTIN_COMMANDS.keys()) + [cmd for cmd in os.listdir('/bin') if os.access(os.path.join('/bin', cmd), os.X_OK)]
+    commands = list(BUILTIN_COMMANDS.keys()) + [shutil.which(cmd) for cmd in os.listdir('/bin') if shutil.which(cmd)]
     matches = [cmd + ' ' for cmd in commands if cmd.startswith(text)]
     return matches[state] if state < len(matches) else None
 
