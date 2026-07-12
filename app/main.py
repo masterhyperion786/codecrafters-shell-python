@@ -88,9 +88,12 @@ def executables_in_path():
                 if os.access(full_path, os.X_OK) and not os.path.isdir(full_path):
                     executables.add(file)
     return executables
+
+def files_in_current_directory():
+    return [f for f in os.listdir('.') if os.path.isfile(f)]
         
 def completion(text, state):
-    commands = list(BUILTIN_COMMANDS.keys()) + list(executables_in_path())
+    commands = list(BUILTIN_COMMANDS.keys()) + list(executables_in_path()) + files_in_current_directory()
     matches = [cmd + ' ' for cmd in commands if cmd.startswith(text)]
     return matches[state] if state < len(matches) else None
 
@@ -142,6 +145,6 @@ if __name__ == "__main__":
     else:
         readline.parse_and_bind("tab: complete")
     readline.set_completer(completion)
-    readline.set_completer_delims('')
+    readline.set_completer_delims(" \t\n")
 
     main()
