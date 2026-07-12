@@ -3,6 +3,7 @@ import shutil
 import shlex
 import subprocess
 import os
+import readline
 
 def cmd_exit(args):
     sys.exit(int(args[0]) if args else 0)
@@ -76,7 +77,11 @@ def execute_program(command):
         except subprocess.CalledProcessError as e:
             print(f"Error executing {command[0]}: {e}")
             return e.returncode
-    
+        
+def completion(text, state):
+    commands = list(BUILTIN_COMMANDS.keys()) + [cmd for cmd in os.listdir('/bin') if os.access(os.path.join('/bin', cmd), os.X_OK)]
+    matches = [cmd for cmd in commands if cmd.startswith(text)]
+    return matches[state] if state < len(matches) else None
 
 BUILTIN_COMMANDS = {
     "exit": cmd_exit,
@@ -121,4 +126,9 @@ def main():
             print("\nUse 'exit' to quit the shell.")
 
 if __name__ == "__main__":
+    if "libedit" in getattr(readline, "__doc__", ""):
+        readline.parse_and_bind("bind ^I rl_complete")
+    else:
+        readline.parse_and_bind("tab: complete")
+    readline.set_completer(completion)
     main()
