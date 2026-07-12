@@ -89,11 +89,15 @@ def executables_in_path():
                     executables.add(file)
     return executables
 
-def files_in_current_directory():
-    return [f for f in os.listdir('.') if os.path.isfile(f)]
+def files_in_current_and_nested_directory():
+    files = []
+    for root, dirs, filenames in os.walk('.'):
+        for filename in filenames:
+            files.append(os.path.join(root, filename))
+    return files
         
 def completion(text, state):
-    commands = list(BUILTIN_COMMANDS.keys()) + list(executables_in_path()) + files_in_current_directory()
+    commands = list(BUILTIN_COMMANDS.keys()) + list(executables_in_path()) + files_in_current_and_nested_directory()
     matches = [cmd + ' ' for cmd in commands if cmd.startswith(text)]
     return matches[state] if state < len(matches) else None
 
@@ -118,6 +122,7 @@ def main():
     # TODO: Uncomment the code below to pass the first stage
     while True:
         try:
+            print(files_in_current_and_nested_directory())
             command_input = input("$ ")
             if not command_input.strip():
                 continue
