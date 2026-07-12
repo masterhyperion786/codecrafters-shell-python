@@ -80,7 +80,7 @@ def execute_program(command):
         
 def completion(text, state):
     commands = list(BUILTIN_COMMANDS.keys()) + [cmd for cmd in os.listdir('/bin') if os.access(os.path.join('/bin', cmd), os.X_OK)]
-    matches = [cmd for cmd in commands if cmd.startswith(text)]
+    matches = [cmd + ' ' for cmd in commands if cmd.startswith(text)]
     return matches[state] if state < len(matches) else None
 
 BUILTIN_COMMANDS = {
@@ -131,4 +131,6 @@ if __name__ == "__main__":
     else:
         readline.parse_and_bind("tab: complete")
     readline.set_completer(completion)
+    readline.set_completer_delims('')
+
     main()
